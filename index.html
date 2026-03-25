@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GestiónDoc — Plataforma de Investigación</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+  <!-- ===== LOGIN ===== -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="logo-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/>
+          </svg>
+        </div>
+        <span class="logo-text">GestiónDoc</span>
+      </div>
+      <h1>Plataforma de Investigación</h1>
+      <p class="login-sub">Ingresa el PIN de acceso para continuar.</p>
+
+      <div class="pin-wrap">
+        <input type="password" id="pin-input" placeholder="Ingresa el PIN" maxlength="20" autocomplete="off" />
+        <button id="btn-login" class="btn-login">Entrar</button>
+      </div>
+      <div id="login-error" class="login-error hidden"></div>
+    </div>
+  </div>
+
+  <!-- ===== APP ===== -->
+  <div id="app" class="app hidden">
+
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon small">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="sidebar-title">GestiónDoc</div>
+          <div class="sidebar-sub">Investigación</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" data-tab="dashboard">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </button>
+        <button class="nav-btn" data-tab="upload">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+          Cargar archivos
+        </button>
+        <button class="nav-btn" data-tab="researchers">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Investigadores
+        </button>
+        <button class="nav-btn" data-tab="files">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Archivos
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="drive-status">
+          <div class="drive-dot connected"></div>
+          <span>Drive del proyecto activo</span>
+        </div>
+        <button class="btn-logout" id="btn-logout">Cerrar sesión</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="main-header">
+        <div>
+          <h2 id="page-title">Dashboard</h2>
+          <p id="page-subtitle">Cargando...</p>
+        </div>
+        <button class="btn-excel" id="btn-export">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportar Excel
+        </button>
+      </header>
+
+      <!-- DASHBOARD -->
+      <section class="tab-content active" id="tab-dashboard">
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-label">Total archivos</div><div class="stat-value" id="stat-files">0</div></div>
+          <div class="stat-card"><div class="stat-label">Investigadores</div><div class="stat-value" id="stat-researchers">0</div></div>
+          <div class="stat-card"><div class="stat-label">Tamaño total</div><div class="stat-value" id="stat-size">0 MB</div></div>
+          <div class="stat-card"><div class="stat-label">Esta semana</div><div class="stat-value" id="stat-week">0</div></div>
+        </div>
+        <div class="chart-grid">
+          <div class="card"><div class="card-title">Archivos por investigador</div><div class="chart-wrap"><canvas id="chart-bar"></canvas></div></div>
+          <div class="card"><div class="card-title">Distribución</div><div class="chart-wrap"><canvas id="chart-pie"></canvas></div></div>
+        </div>
+        <div class="card"><div class="card-title">Cargas recientes</div><div id="recent-files-list"></div></div>
+      </section>
+
+      <!-- UPLOAD -->
+      <section class="tab-content" id="tab-upload">
+        <div class="upload-layout">
+
+          <!-- Paso 1: Investigador -->
+          <div class="card">
+            <div class="card-title">1. Selecciona el investigador</div>
+            <div id="researcher-selector"></div>
+          </div>
+
+          <!-- Pasos 2 y 3 -->
+          <div>
+            <!-- Paso 2: Tipo de documento -->
+            <div class="card" id="doctype-card">
+              <div class="card-title">
+                2. Tipo de documento
+                <span class="required-badge">Obligatorio</span>
+              </div>
+              <div class="form-field">
+                <input
+                  type="text"
+                  id="doc-type-input"
+                  placeholder="Ej: Artículo, Tesis, Informe, Ponencia..."
+                  maxlength="60"
+                />
+                <p class="field-hint" id="doctype-hint"></p>
+              </div>
+            </div>
+
+            <!-- Paso 3: Archivos -->
+            <div class="card" id="drop-card">
+              <div class="card-title">3. Carga los documentos PDF</div>
+              <div id="folder-badge" class="folder-badge hidden"></div>
+              <div id="drop-zone" class="drop-zone disabled">
+                <div class="drop-icon">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+                </div>
+                <p class="drop-main">Arrastra tus PDFs aquí</p>
+                <p class="drop-sub">o haz clic para seleccionar · Solo archivos PDF</p>
+                <input type="file" id="file-input" multiple accept=".pdf" style="display:none" />
+              </div>
+              <div id="upload-progress" class="hidden">
+                <div class="prog-row">
+                  <span id="prog-text">Subiendo...</span>
+                  <span id="prog-pct">0%</span>
+                </div>
+                <div class="prog-bar"><div id="prog-fill"></div></div>
+                <div id="prog-detail" class="prog-detail"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESEARCHERS -->
+      <section class="tab-content" id="tab-researchers">
+        <div class="section-header">
+          <p id="researchers-count" class="section-count"></p>
+          <button class="btn-primary" id="btn-add-researcher">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nuevo investigador
+          </button>
+        </div>
+        <div id="add-researcher-form" class="card add-form hidden">
+          <div class="card-title">Nuevo investigador</div>
+          <div class="form-grid">
+            <div class="form-field"><label>Nombre completo *</label><input type="text" id="field-name" placeholder="Ej: Ana García López" /></div>
+            <div class="form-field"><label>Correo electrónico</label><input type="email" id="field-email" placeholder="correo@universidad.edu" /></div>
+            <div class="form-field"><label>Área de investigación</label><input type="text" id="field-area" placeholder="Ej: Biotecnología, Ciencias Sociales..." /></div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-primary" id="btn-save-researcher">Guardar</button>
+            <button class="btn-ghost" id="btn-cancel-researcher">Cancelar</button>
+          </div>
+        </div>
+        <div id="researchers-list"></div>
+      </section>
+
+      <!-- FILES -->
+      <section class="tab-content" id="tab-files">
+        <div class="filters-bar">
+          <div class="search-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="search-input" placeholder="Buscar por nombre, investigador o tipo..." />
+          </div>
+          <select id="filter-researcher"><option value="">Todos los investigadores</option></select>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden"><div id="files-table-wrap"></div></div>
+        <p id="files-count-label" class="files-count-label"></p>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
