@@ -155,18 +155,16 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Tipo de documento — solo letras
-  const docTypeInput = document.getElementById("doc-type-input");
-  docTypeInput.addEventListener("input", () => {
-    const val = docTypeInput.value;
-    const hint = document.getElementById("doctype-hint");
-    // Bloquear números y símbolos mientras escribe
-    if (val && !isValidDocType(val)) {
-      hint.textContent = "⚠️ Solo se permiten letras y espacios, sin números ni símbolos.";
-      hint.style.color = "#EF4444";
-    } else {
-      hint.textContent = "";
-    }
-    updateDropZone();
+  // Poblar el select de tipos de producto
+const docTypeSelect = document.getElementById("doc-type-input");
+CONFIG.TIPOS_PRODUCTO.forEach(tp => {
+  const opt = document.createElement("option");
+  opt.value = tp.tipo;
+  opt.textContent = tp.tipo;
+  docTypeSelect.appendChild(opt);
+});
+docTypeSelect.addEventListener("change", updateDropZone);
+    
   });
 
   // Drop zone
@@ -376,7 +374,7 @@ function updateDropZone() {
   const badge = document.getElementById("folder-badge");
   const r = State.researchers.find(r => r.id === State.selectedResearcher);
   const docType = document.getElementById("doc-type-input").value.trim();
-  const docTypeOk = isValidDocType(docType);
+  const docTypeOk = docType.length > 0;
 
   if (r && docTypeOk) {
     dz.classList.remove("disabled");
