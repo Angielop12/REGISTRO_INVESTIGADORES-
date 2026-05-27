@@ -9,7 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-
+ 
   <!-- ===== LOGIN ===== -->
   <div id="login-screen" class="login-screen">
     <div class="login-card">
@@ -23,7 +23,7 @@
       </div>
       <h1>Plataforma de Investigación</h1>
       <p class="login-sub">Ingresa el PIN de acceso para continuar.</p>
-
+ 
       <div class="pin-wrap">
         <input type="password" id="pin-input" placeholder="Ingresa el PIN" maxlength="20" autocomplete="off" />
         <button id="btn-login" class="btn-login">Entrar</button>
@@ -31,10 +31,10 @@
       <div id="login-error" class="login-error hidden"></div>
     </div>
   </div>
-
+ 
   <!-- ===== APP ===== -->
   <div id="app" class="app hidden">
-
+ 
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="logo-icon small">
@@ -47,7 +47,7 @@
           <div class="sidebar-sub">Investigación</div>
         </div>
       </div>
-
+ 
       <nav class="sidebar-nav">
         <button class="nav-btn active" data-tab="dashboard">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
@@ -66,7 +66,7 @@
           Archivos
         </button>
       </nav>
-
+ 
       <div class="sidebar-footer">
         <div class="drive-status">
           <div class="drive-dot connected"></div>
@@ -75,7 +75,7 @@
         <button class="btn-logout" id="btn-logout">Cerrar sesión</button>
       </div>
     </aside>
-
+ 
     <main class="main">
       <header class="main-header">
         <div>
@@ -87,7 +87,7 @@
           Exportar Excel
         </button>
       </header>
-
+ 
       <!-- DASHBOARD -->
       <section class="tab-content active" id="tab-dashboard">
         <div class="stat-grid">
@@ -96,52 +96,77 @@
           <div class="stat-card"><div class="stat-label">Tamaño total</div><div class="stat-value" id="stat-size">0 MB</div></div>
           <div class="stat-card"><div class="stat-label">Esta semana</div><div class="stat-value" id="stat-week">0</div></div>
         </div>
+ 
+        <!-- Gráficos por investigador -->
         <div class="chart-grid">
           <div class="card"><div class="card-title">Archivos por investigador</div><div class="chart-wrap"><canvas id="chart-bar"></canvas></div></div>
           <div class="card"><div class="card-title">Distribución</div><div class="chart-wrap"><canvas id="chart-pie"></canvas></div></div>
         </div>
+ 
+        <!-- FIX 5: Gráfico por tipo de producto -->
+        <div class="card" style="margin-top:16px">
+          <div class="card-title">Archivos y puntos por tipo de producto</div>
+          <div class="chart-wrap" style="height:320px"><canvas id="chart-by-type"></canvas></div>
+        </div>
+ 
         <div class="card"><div class="card-title">Cargas recientes</div><div id="recent-files-list"></div></div>
       </section>
-
+ 
       <!-- UPLOAD -->
       <section class="tab-content" id="tab-upload">
         <div class="upload-layout">
-
+ 
           <!-- Paso 1: Investigador -->
           <div class="card">
             <div class="card-title">1. Selecciona el investigador</div>
             <div id="researcher-selector"></div>
           </div>
-
+ 
           <!-- Pasos 2 y 3 -->
           <div>
-            <!-- Paso 2: Tipo de documento -->
+            <!-- Paso 2: Tipo de documento — FIX 1: select corregido -->
             <div class="card" id="doctype-card">
               <div class="card-title">
                 2. Tipo de documento
                 <span class="required-badge">Obligatorio</span>
               </div>
               <div class="form-field">
-                <<select id="doc-type-input">
-  <option value="">-- Selecciona un tipo de producto --</option>
-</select>
-                />
+                <select id="doc-type-input">
+                  <option value="">-- Selecciona un tipo de producto --</option>
+                </select>
                 <p class="field-hint" id="doctype-hint"></p>
               </div>
             </div>
-
-            <!-- Paso 3: Archivos -->
+ 
+            <!-- Paso 3: Archivos — FIX 4: dos zonas de carga -->
             <div class="card" id="drop-card">
               <div class="card-title">3. Carga los documentos PDF</div>
               <div id="folder-badge" class="folder-badge hidden"></div>
+ 
+              <!-- Archivo del producto -->
+              <p class="upload-label">📄 Archivo del producto</p>
               <div id="drop-zone" class="drop-zone disabled">
                 <div class="drop-icon">
                   <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
                 </div>
-                <p class="drop-main">Arrastra tus PDFs aquí</p>
+                <p class="drop-main">Arrastra el PDF del producto aquí</p>
                 <p class="drop-sub">o haz clic para seleccionar · Solo archivos PDF</p>
-                <input type="file" id="file-input" multiple accept=".pdf" style="display:none" />
+                <input type="file" id="file-input" accept=".pdf" style="display:none" />
               </div>
+              <p id="file-selected-name" class="file-selected-hint hidden"></p>
+ 
+              <!-- Archivo del certificado -->
+              <p class="upload-label" style="margin-top:16px">📋 Archivo de certificación</p>
+              <div id="cert-zone" class="drop-zone disabled">
+                <div class="drop-icon">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+                </div>
+                <p class="drop-main">Arrastra el PDF del certificado aquí</p>
+                <p class="drop-sub">o haz clic para seleccionar · Solo archivos PDF</p>
+                <input type="file" id="cert-input" accept=".pdf" style="display:none" />
+              </div>
+              <p id="cert-selected-name" class="file-selected-hint hidden"></p>
+ 
               <div id="upload-progress" class="hidden">
                 <div class="prog-row">
                   <span id="prog-text">Subiendo...</span>
@@ -154,7 +179,7 @@
           </div>
         </div>
       </section>
-
+ 
       <!-- RESEARCHERS -->
       <section class="tab-content" id="tab-researchers">
         <div class="section-header">
@@ -178,7 +203,7 @@
         </div>
         <div id="researchers-list"></div>
       </section>
-
+ 
       <!-- FILES -->
       <section class="tab-content" id="tab-files">
         <div class="filters-bar">
@@ -193,10 +218,11 @@
       </section>
     </main>
   </div>
-
+ 
   <div id="toast" class="toast hidden"></div>
-
+ 
   <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
+ 
