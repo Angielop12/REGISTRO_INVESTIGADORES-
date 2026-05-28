@@ -13,8 +13,17 @@ const State = {
   charts: { bar: null, pie: null, byType: null }, // ← FIX 5: agregado byType
  
   load() {
-    this.researchers = JSON.parse(localStorage.getItem("gd_researchers") || "[]");
-    this.files = JSON.parse(localStorage.getItem("gd_files") || "[]");
+    // FIX 1: try-catch para que JSON corrupto en localStorage no rompa el DOMContentLoaded
+    try {
+      this.researchers = JSON.parse(localStorage.getItem("gd_researchers") || "[]");
+      this.files       = JSON.parse(localStorage.getItem("gd_files")       || "[]");
+    } catch (e) {
+      console.warn("localStorage corrupto, reiniciando datos locales.", e);
+      this.researchers = [];
+      this.files       = [];
+      localStorage.removeItem("gd_researchers");
+      localStorage.removeItem("gd_files");
+    }
     this.pin = sessionStorage.getItem("gd_pin") || null;
   },
  
@@ -227,22 +236,29 @@ async function doLogin() {
     return;
   }
  
-  btn.textContent = "Verificando...";
-  btn.disabled = true;
-  errEl.classList.add("hidden");
- 
+  // FIX 2: btn.disabled=true va DENTRO del try para que el finally siempre lo reactive.
+  // Si estuviera fuera y algo lanzara excepción antes del try, el finally nunca correría
+  // y el botón quedaría bloqueado permanentemente.
   try {
+    btn.textContent = "Verificando...";
+    btn.disabled = true;
+    if (errEl) errEl.classList.add("hidden");
+ 
     const result = await API.verifyPin(pin);
     if (result.ok) {
       State.savePin(pin);
       showApp();
     } else {
-      errEl.textContent = "PIN incorrecto. Intenta de nuevo.";
-      errEl.classList.remove("hidden");
+      if (errEl) {
+        errEl.textContent = "PIN incorrecto. Intenta de nuevo.";
+        errEl.classList.remove("hidden");
+      }
     }
   } catch (err) {
-    errEl.textContent = "No se pudo conectar con el servidor. Verifica que el backend esté activo.";
-    errEl.classList.remove("hidden");
+    if (errEl) {
+      errEl.textContent = "No se pudo conectar con el servidor. Verifica que el backend esté activo.";
+      errEl.classList.remove("hidden");
+    }
   } finally {
     btn.textContent = "Entrar";
     btn.disabled = false;
