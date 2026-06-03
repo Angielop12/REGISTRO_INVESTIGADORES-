@@ -447,7 +447,7 @@ function renderUploadTab() {
     const count = State.files.filter(f => f.researcherId === r.id).length;
     const active = State.selectedResearcher === r.id;
     return `
-      <button class="researcher-option ${active ? "selected" : ""}" onclick="selectResearcher('${r.id}')">
+      <button class="researcher-option ${active ? "selected" : ""}" data-researcher-id="${esc(r.id)}">
         <div class="res-avatar" style="background:${colorFor(i)}">${initials(r.name)}</div>
         <div class="res-info">
           <span class="res-name">${esc(r.name)}</span>
@@ -457,12 +457,27 @@ function renderUploadTab() {
       </button>`;
   }).join("");
  
+  // ✅ FIX: eventos via addEventListener para evitar problemas con IDs en onclick inline
+  sel.querySelectorAll(".researcher-option").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-researcher-id");
+      selectResearcher(id);
+    });
+  });
+ 
   updateDropZone();
 }
  
 function selectResearcher(id) {
   State.selectedResearcher = id;
-  renderUploadTab();
+ 
+  // Actualizar visualmente sin re-renderizar todo el tab
+  document.querySelectorAll(".researcher-option").forEach(btn => {
+    const btnId = btn.getAttribute("data-researcher-id");
+    btn.classList.toggle("selected", btnId === id);
+  });
+ 
+  updateDropZone();
 }
  
 // Variables globales para los dos archivos
@@ -879,3 +894,4 @@ function exportExcel() {
   XLSX.writeFile(wb, `Reporte_Investigacion_${new Date().toISOString().slice(0, 10)}.xlsx`);
   showToast("Excel exportado correctamente");
 }
+ 
