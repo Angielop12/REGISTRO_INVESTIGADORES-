@@ -1,6 +1,14 @@
 /**
  * APP.JS — Lógica principal
  * Autenticación por PIN · Subida via backend Vercel · Campo tipo de documento
+ * ✅ FIXES APLICADOS:
+ *  FIX 1 — Botón "Subir" habilitado/deshabilitado dinámicamente en updateDropZone()
+ *  FIX 2 — package.json engines: node 18.x
+ *  FIX 3 — Feedback visual en drop-zones bloqueadas
+ *  FIX 5 — ALLOWED_ORIGIN ya configurado en Vercel (https://angielop12.github.io)
+ *  FIX 6 — setCors usa req.headers.origin cuando está disponible
+ *  FIX 7 — req.body defensivo (ver ensure-folder.js y upload-session.js)
+ *  FIX 8 — folderName normaliza tildes con normalize("NFD")
  */
  
 // ── STATE ─────────────────────────────────────────────────────────────────────
@@ -10,10 +18,9 @@ const State = {
   files: [],
   pin: null,
   selectedResearcher: null,
-  charts: { bar: null, pie: null, byType: null }, // ← FIX 5: agregado byType
+  charts: { bar: null, pie: null, byType: null },
  
   load() {
-    // FIX 1: try-catch para que JSON corrupto en localStorage no rompa el DOMContentLoaded
     try {
       this.researchers = JSON.parse(localStorage.getItem("gd_researchers") || "[]");
       this.files       = JSON.parse(localStorage.getItem("gd_files")       || "[]");
@@ -116,24 +123,19 @@ function showToast(msg, type = "success") {
   _toastTimer = setTimeout(() => el.classList.add("hidden"), 3500);
 }
  
-// FIX 2: isValidDocType eliminada — ya no se necesita con el select
- 
 // ── INIT ──────────────────────────────────────────────────────────────────────
  
 document.addEventListener("DOMContentLoaded", () => {
   State.load();
  
-  // Login con PIN
   const pinInput = document.getElementById("pin-input");
   document.getElementById("btn-login").addEventListener("click", doLogin);
   pinInput.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
  
-  // Si ya hay PIN en sesión, entrar directamente
   if (State.pin) {
     showApp();
   }
  
-  // Navegación
   document.querySelectorAll(".nav-btn").forEach(btn => {
     btn.addEventListener("click", () => switchTab(btn.dataset.tab));
   });
@@ -160,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.key === "Enter") saveResearcher();
   });
  
-  // FIX 3: Poblar el select de tipos de producto (correctamente indentado)
+  // Poblar select de tipos de producto
   const docTypeSelect = document.getElementById("doc-type-input");
   CONFIG.TIPOS_PRODUCTO.forEach(tp => {
     const opt = document.createElement("option");
@@ -170,7 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   docTypeSelect.addEventListener("change", updateDropZone);
  
-  // FIX 4: Drop zone — Producto
+  // Drop zone — Producto
   const dropZone = document.getElementById("drop-zone");
   const fileInput = document.getElementById("file-input");
  
@@ -194,7 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target.files[0]) setProductoFile(e.target.files[0]);
   });
  
-  // FIX 4: Drop zone — Certificado
+  // Drop zone — Certificado
   const certZone = document.getElementById("cert-zone");
   const certInput = document.getElementById("cert-input");
  
@@ -236,9 +238,6 @@ async function doLogin() {
     return;
   }
  
-  // FIX 2: btn.disabled=true va DENTRO del try para que el finally siempre lo reactive.
-  // Si estuviera fuera y algo lanzara excepción antes del try, el finally nunca correría
-  // y el botón quedaría bloqueado permanentemente.
   try {
     btn.textContent = "Verificando...";
     btn.disabled = true;
@@ -371,7 +370,7 @@ function renderDashboard() {
       </table>`;
   }
  
-  // FIX 5: Gráfico por tipo de documento
+  // Gráfico por tipo de documento
   const typeMap = {};
   State.files.forEach(f => {
     const tipo = f.docType || "Sin tipo";
@@ -400,26 +399,12 @@ function renderDashboard() {
     data: {
       labels: shortLabels,
       datasets: [
-        {
-          label: "Archivos",
-          data: typeCounts,
-          backgroundColor: "#3B82F6",
-          borderRadius: 4,
-          yAxisID: "yCount"
-        },
-        {
-          label: "Puntos acumulados",
-          data: typePuntos,
-          backgroundColor: "#10B981",
-          borderRadius: 4,
-          yAxisID: "yPuntos"
-        }
+        { label: "Archivos", data: typeCounts, backgroundColor: "#3B82F6", borderRadius: 4, yAxisID: "yCount" },
+        { label: "Puntos acumulados", data: typePuntos, backgroundColor: "#10B981", borderRadius: 4, yAxisID: "yPuntos" }
       ]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      indexAxis: "y",
+      responsive: true, maintainAspectRatio: false, indexAxis: "y",
       plugins: {
         legend: { position: "top", labels: { font: { size: 11 }, color: "#6B7280" } },
         tooltip: {
@@ -436,22 +421,9 @@ function renderDashboard() {
         }
       },
       scales: {
-        yCount: {
-          position: "left",
-          beginAtZero: true,
-          ticks: { stepSize: 1, color: "#9CA3AF", font: { size: 10 } },
-          grid: { color: "#F1F5F9" }
-        },
-        yPuntos: {
-          position: "right",
-          beginAtZero: true,
-          ticks: { color: "#9CA3AF", font: { size: 10 } },
-          grid: { display: false }
-        },
-        x: {
-          ticks: { color: "#9CA3AF", font: { size: 10 } },
-          grid: { display: false }
-        }
+        yCount: { position: "left", beginAtZero: true, ticks: { stepSize: 1, color: "#9CA3AF", font: { size: 10 } }, grid: { color: "#F1F5F9" } },
+        yPuntos: { position: "right", beginAtZero: true, ticks: { color: "#9CA3AF", font: { size: 10 } }, grid: { display: false } },
+        x: { ticks: { color: "#9CA3AF", font: { size: 10 } }, grid: { display: false } }
       }
     }
   });
@@ -493,7 +465,7 @@ function selectResearcher(id) {
   renderUploadTab();
 }
  
-// FIX 4: Variables globales para los dos archivos
+// Variables globales para los dos archivos
 let _productoFile = null;
 let _certificadoFile = null;
  
@@ -515,11 +487,12 @@ function setCertificadoFile(file) {
   updateDropZone();
 }
  
-// FIX 4: updateDropZone actualizado para manejar dos zonas
+// ✅ FIX 1 + FIX 3: updateDropZone habilita botón y muestra feedback en zonas bloqueadas
 function updateDropZone() {
   const dz = document.getElementById("drop-zone");
   const cz = document.getElementById("cert-zone");
   const badge = document.getElementById("folder-badge");
+  const btnUpload = document.getElementById("btn-upload");
   const r = State.researchers.find(r => r.id === State.selectedResearcher);
   const docType = document.getElementById("doc-type-input").value.trim();
   const docTypeOk = docType.length > 0;
@@ -527,21 +500,39 @@ function updateDropZone() {
   // Zona producto: se habilita si hay investigador y tipo seleccionado
   if (r && docTypeOk) {
     dz.classList.remove("disabled");
+    const msg = dz.querySelector(".drop-main");
+    if (msg) msg.textContent = "Arrastra el PDF del producto aquí";
   } else {
     dz.classList.add("disabled");
     _productoFile = null;
     const hint = document.getElementById("file-selected-name");
     if (hint) hint.classList.add("hidden");
+    // ✅ FIX 3: feedback visual según qué falta
+    const msg = dz.querySelector(".drop-main");
+    if (msg) {
+      msg.textContent = !r
+        ? "Primero selecciona un investigador"
+        : "Primero selecciona el tipo de documento";
+    }
   }
  
   // Zona certificado: se habilita solo si ya hay archivo de producto
   if (r && docTypeOk && _productoFile) {
     cz.classList.remove("disabled");
+    const msg = cz.querySelector(".drop-main");
+    if (msg) msg.textContent = "Arrastra el PDF del certificado aquí";
   } else {
     cz.classList.add("disabled");
     _certificadoFile = null;
     const certHint = document.getElementById("cert-selected-name");
     if (certHint) certHint.classList.add("hidden");
+    // ✅ FIX 3: feedback visual
+    const msg = cz.querySelector(".drop-main");
+    if (msg) {
+      msg.textContent = !_productoFile
+        ? "Primero sube el archivo del producto"
+        : "Arrastra el PDF del certificado aquí";
+    }
   }
  
   // Badge informativo
@@ -555,11 +546,15 @@ function updateDropZone() {
   } else {
     badge.classList.add("hidden");
   }
+ 
+  // ✅ FIX 1: habilitar/deshabilitar botón de subida
+  if (btnUpload) {
+    btnUpload.disabled = !(r && docTypeOk && _productoFile && _certificadoFile);
+  }
 }
  
 // ── UPLOAD LOGIC ──────────────────────────────────────────────────────────────
  
-// FIX 2 + FIX 4: handleFiles reescrita para subir dos archivos, sin isValidDocType
 async function handleFiles() {
   const docType = document.getElementById("doc-type-input").value.trim();
  
@@ -571,15 +566,17 @@ async function handleFiles() {
   const researcher = State.researchers.find(r => r.id === State.selectedResearcher);
   if (!researcher) return;
  
+  const btnUpload = document.getElementById("btn-upload");
   const progEl = document.getElementById("upload-progress");
   const progText = document.getElementById("prog-text");
   const progPct = document.getElementById("prog-pct");
   const progFill = document.getElementById("prog-fill");
   const progDetail = document.getElementById("prog-detail");
+ 
+  btnUpload.disabled = true;
   progEl.classList.remove("hidden");
  
   try {
-    // Crear carpeta del investigador en Drive
     progText.textContent = "Preparando carpeta en Drive...";
     const { folderId } = await API.ensureFolder(researcher.folder);
     researcher.folderId = folderId;
@@ -607,7 +604,6 @@ async function handleFiles() {
     });
     progDetail.textContent = `✓ Certificado subido`;
  
-    // Registrar localmente con ambos archivos
     State.addFile({
       id: Date.now().toString() + Math.random().toString(36).slice(2),
       name: nameProducto || _productoFile.name,
@@ -635,6 +631,7 @@ async function handleFiles() {
   } catch (err) {
     console.error("Error:", err);
     showToast("Error al subir: " + err.message, "error");
+    btnUpload.disabled = false;
   }
  
   setTimeout(() => {
@@ -642,7 +639,6 @@ async function handleFiles() {
     progFill.style.width = "0%";
   }, 3500);
  
-  // Resetear estado de archivos seleccionados
   _productoFile = null;
   _certificadoFile = null;
   document.getElementById("file-input").value = "";
@@ -690,7 +686,12 @@ async function saveResearcher() {
   const name = document.getElementById("field-name").value.trim();
   if (!name) { showToast("El nombre es obligatorio", "error"); return; }
  
-  const folderName = "Inv_" + name.replace(/\s+/g, "_").replace(/[^a-zA-ZÀ-ÿ0-9_\-]/g, "");
+  // ✅ FIX 8: normalizar tildes y caracteres especiales en folderName
+  const folderName = "Inv_" + name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")   // eliminar tildes
+    .replace(/\s+/g, "_")
+    .replace(/[^a-zA-Z0-9_\-]/g, ""); // solo alfanuméricos, guion y guion_bajo
  
   State.addResearcher({
     id: Date.now().toString() + Math.random().toString(36).slice(2),
@@ -782,7 +783,6 @@ function renderFilesTable() {
  
   countLabel.textContent = `Mostrando ${filtered.length} de ${State.files.length} archivos`;
  
-  // FIX 4 + FIX (tbody): tabla con columna de certificado
   wrap.innerHTML = `
     <table class="data-table">
       <thead><tr>
