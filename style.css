@@ -61,7 +61,7 @@ body {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
-.login-logo-circle {
+..login-logo-circle {
   position: absolute;
   top: -60px;
   left: 50%;
@@ -75,14 +75,14 @@ body {
   justify-content: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   overflow: hidden;
-  border: 4px solid rgba(255,255,255,0.3);
+  border: 3px solid rgba(255,255,255,0.6);
 }
 
 .login-logo-circle img {
-  width: 100%;
-  height: 100%;
+  width: 90%;
+  height: 90%;
   object-fit: contain;
-  padding: 8px;
+  border-radius: 50%;
 }
 
 .login-card h1 {
