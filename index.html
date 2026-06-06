@@ -13,25 +13,26 @@
   <!-- ===== LOGIN ===== -->
   <div id="login-screen" class="login-screen">
     <div class="login-card">
-      <div class="login-logo">
-        <div class="logo-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-            <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/>
-          </svg>
-        </div>
-        <span class="logo-text">GestiónDoc</span>
+      <div class="login-logo-circle">
+        <img src="logo.png" alt="Logo CES" />
       </div>
       <h1>Plataforma de Investigación</h1>
       <p class="login-sub">Ingresa el PIN de acceso para continuar.</p>
- 
       <div class="pin-wrap">
-        <input type="password" id="pin-input" placeholder="Ingresa el PIN" maxlength="20" autocomplete="off" />
+        <div class="pin-input-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+          </svg>
+          <input type="password" id="pin-input" placeholder="Ingresa el PIN" maxlength="20" autocomplete="off" />
+        </div>
         <button id="btn-login" class="btn-login">Entrar</button>
       </div>
       <div id="login-error" class="login-error hidden"></div>
     </div>
+    <div class="login-footer">
+      Director: Marco Antonio Burgos &nbsp;|&nbsp; Diseño y desarrollo: Angie Vanessa Guerrero López
+    </div>
   </div>
- 
   <!-- ===== APP ===== -->
   <div id="app" class="app hidden">
  
