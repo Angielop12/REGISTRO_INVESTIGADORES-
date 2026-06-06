@@ -34,89 +34,145 @@ body {
   line-height: 1.5;
 }
 
-/* ── LOGIN ─────────────────────────────────────── */
-
+/* ===== LOGIN SCREEN ===== */
 .login-screen {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0F172A 0%, #1E3A5F 100%);
+  background: linear-gradient(135deg, #0a1628 0%, #0d2147 50%, #0a1e3d 100%);
   padding: 24px;
+  position: relative;
 }
 
 .login-card {
-  background: var(--surface);
-  border-radius: 16px;
-  padding: 40px;
-  max-width: 440px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 60px 48px 40px;
   width: 100%;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  max-width: 460px;
   text-align: center;
+  position: relative;
+  margin-top: 60px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
-.login-logo {
+.login-logo-circle {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  border: 4px solid rgba(255,255,255,0.3);
 }
 
-.logo-icon {
-  width: 44px; height: 44px;
-  border-radius: 12px;
-  background: var(--blue);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
+.login-logo-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 8px;
 }
 
-.logo-icon.small { width: 32px; height: 32px; border-radius: 8px; }
-
-.logo-text { font-size: 20px; font-weight: 700; color: var(--text); }
-
-.login-card h1 { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+.login-card h1 {
+  color: white;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
 
 .login-sub {
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.65);
   font-size: 14px;
-  margin-bottom: 28px;
-  line-height: 1.6;
+  margin: 0 0 28px;
 }
 
-.btn-google {
+.pin-wrap {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.pin-input-wrap {
+  flex: 1;
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  padding: 12px 20px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-  color: var(--text);
 }
 
-.btn-google:hover { background: var(--bg); border-color: #CBD5E1; }
+.pin-input-wrap svg {
+  position: absolute;
+  left: 14px;
+  color: rgba(255,255,255,0.5);
+  pointer-events: none;
+}
 
-.login-note {
-  font-size: 12px;
-  color: var(--text-hint);
-  margin-top: 16px;
-  line-height: 1.5;
+.pin-input-wrap input {
+  width: 100%;
+  padding: 12px 14px 12px 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  color: white;
+  font-size: 15px;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.pin-input-wrap input::placeholder {
+  color: rgba(255,255,255,0.4);
+}
+
+.pin-input-wrap input:focus {
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.btn-login {
+  padding: 12px 24px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.btn-login:hover {
+  background: #1d4ed8;
 }
 
 .login-error {
   margin-top: 14px;
-  padding: 10px 14px;
-  background: var(--red-light);
-  color: var(--red);
-  border-radius: var(--radius-sm);
+  color: #fca5a5;
   font-size: 13px;
+  text-align: center;
+}
+
+.login-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 24px;
+  text-align: center;
+  color: rgba(255,255,255,0.45);
+  font-size: 12px;
+  background: rgba(0,0,0,0.2);
 }
 
 /* ── LAYOUT ────────────────────────────────────── */
