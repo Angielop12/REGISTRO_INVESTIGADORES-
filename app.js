@@ -694,7 +694,6 @@ async function uploadToDrive(file, uploadUrl, onProgress) {
 function clearResearcherForm() {
   document.getElementById("field-name").value = "";
   document.getElementById("field-email").value = "";
-  document.getElementById("field-area").value = "";
 }
  
 async function saveResearcher() {
@@ -712,7 +711,7 @@ async function saveResearcher() {
     id: Date.now().toString() + Math.random().toString(36).slice(2),
     name,
     email: document.getElementById("field-email").value.trim(),
-    area: document.getElementById("field-area").value.trim(),
+    area: ""
     folder: folderName,
     folderId: null,
     createdAt: new Date().toISOString()
