@@ -708,15 +708,14 @@ async function saveResearcher() {
     .replace(/[^a-zA-Z0-9_\-]/g, ""); // solo alfanuméricos, guion y guion_bajo
  
   State.addResearcher({
-    id: Date.now().toString() + Math.random().toString(36).slice(2),
-    name,
-    email: document.getElementById("field-email").value.trim(),
-    area: ""
-    folder: folderName,
-    folderId: null,
-    createdAt: new Date().toISOString()
-  });
- 
+  id: Date.now().toString() + Math.random().toString(36).slice(2),
+  name,
+  email: document.getElementById("field-email").value.trim(),
+  area: "",
+  folder: folderName,
+  folderId: null,
+  createdAt: new Date().toISOString()
+});
   document.getElementById("add-researcher-form").classList.add("hidden");
   clearResearcherForm();
   updateAll();
